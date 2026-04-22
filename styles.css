@@ -1,0 +1,222 @@
+/* RESET / BASE */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #020617;
+  color: white;
+}
+
+/* APP CONTAINER */
+.app {
+  max-width: 500px;
+  margin: auto;
+  padding: 15px;
+}
+
+/* HEADER */
+h1 {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+
+/* KNAPPER */
+button {
+  width: 100%;
+  padding: 14px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
+  color: white;
+  cursor: pointer;
+}
+
+/* legg margin kun der du trenger det */
+.controls button,
+#showTeams {
+  margin-top: 10px;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* INPUT */
+.controls input {
+  width: 80px;
+  padding: 10px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: none;
+  text-align: center;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+label {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+/* TOGGLE HEADERS */
+.toggle {
+  background: #1e293b;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  margin: 15px 0 10px;
+  cursor: pointer;
+}
+
+/* SKJUL */
+.hidden {
+  display: none !important;
+}
+
+/* SPILLERLISTE */
+#playerList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* SPILLER */
+.player {
+  padding: 14px;
+  text-align: center;
+  background: #1e293b;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: 0.15s;
+}
+
+.player.active {
+  background: #3b82f6;
+}
+
+/* KONFLIKTER */
+#conflicts {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  transition: all 0.2s ease;
+}
+
+#conflictControls {
+  display: flex;
+  gap: 8px;
+  align-items: stretch; /* 🔥 viktig */
+}
+
+#conflictControls select {
+  flex: 1;
+  min-width: 0;
+
+  height: 48px;
+  padding: 0 12px;
+
+  border-radius: 10px;
+  border: none;
+
+  font-size: 16px;
+
+  background: #e5e7eb;
+  color: black;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  display: block;
+}
+
+#conflictControls button {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  display: flex;
+  align-items: center; /* 🔥 viktig */
+  justify-content: center;
+}
+
+/* Liste over konflikter */
+#conflictList div {
+  padding: 8px;
+  background: #1e293b;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+/* MODAL (FIXET – ingen ghost layer) */
+.modal {
+  display: none; /* 🔥 viktig */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+/* Når modal er aktiv */
+.modal.show {
+  display: flex;
+}
+
+/* Modal innhold */
+#modalContent {
+  background: #020617;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  text-align: center;
+}
+
+/* LAG */
+.teamTitle {
+  font-weight: bold;
+  padding: 6px;
+  border-radius: 6px;
+  margin: 10px 0 5px;
+}
+
+.team1 { background: #ef4444; }
+.team2 { background: #3b82f6; }
+.team3 { background: #22c55e; }
+.team4 { background: #eab308; }
+
+/* VIS LAG KNAPP */
+#showTeams {
+  margin-top: 10px;
+}
+
+#conflictControls button {
+  margin-top: 0; /* 🔥 fjerner forskyvning */
+}
+
+#showTeams {
+  width: auto;
+  display: block;
+  margin: 15px auto 0; /* sentrerer */
+  padding: 12px 30px;
+}

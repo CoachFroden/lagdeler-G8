@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>Lag-generator</title>
+  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="icon" type="image/png" href="icon.png">
+
+<!-- iPhone / iOS hjemskjerm -->
+<link rel="apple-touch-icon" href="icon.png">
+
+</head>
+<body>
+
+<div class="app">
+  <h1>⚽ Lag-generator</h1>
+
+<div class="controls">
+  <div class="inputGroup">
+    <label>Antall lag</label>
+    <input type="number" id="numTeams" value="3">
+  </div>
+
+  <button id="generate">Nye lag</button>
+</div>
+
+  <h2 id="togglePlayers" class="toggle">Spillere</h2>
+<div id="playerList" class="hidden"></div>
+
+  <h2 id="toggleConflicts" class="toggle">Ikke på samme lag</h2>
+<div id="conflicts" class="hidden">
+  <div id="conflictControls"></div>
+  <div id="conflictList"></div>
+</div>
+
+  <div id="teams"></div>
+</div>
+
+<div id="modal" class="modal hidden">
+  <div id="modalContent"></div>
+</div>
+
+<button id="showTeams" class="hidden">Vis lag</button>
+
+<script src="app.js"></script>
+</body>
+</html>
