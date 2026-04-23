@@ -15,21 +15,20 @@ const players = [
   { name: "Daniel", level: 1 },
   { name: "Sigurd", level: 1 },
   { name: "Evo", level: 2 },
-  { name: "Thomas", level: 4 }
+  { name: "Thomas", level: 4 },
+  { name: "Samuel", level: 2 }
 ];
 
 let selected = new Set(players.map(p => p.name));
 let conflicts = [];
+let together = []; // NY
 
 const playerList = document.getElementById("playerList");
-const conflictDiv = document.getElementById("conflicts");
-const teamsDiv = document.getElementById("teams");
 
-// Spillere (checkbox)
+// Spillere
 players.forEach(p => {
   const div = document.createElement("div");
   div.className = "player active";
-
   div.textContent = p.name;
 
   div.onclick = () => {
@@ -45,7 +44,9 @@ players.forEach(p => {
   playerList.appendChild(div);
 });
 
-// Konflikter (velg 2 spillere)
+//
+// 🔴 KONFLIKTER
+//
 function renderConflictSelector() {
   const controls = document.getElementById("conflictControls");
   controls.innerHTML = "";
@@ -64,13 +65,13 @@ function renderConflictSelector() {
   btn.onclick = () => {
     if (select1.value !== select2.value) {
       const exists = conflicts.some(c =>
-  (c[0] === select1.value && c[1] === select2.value) ||
-  (c[0] === select2.value && c[1] === select1.value)
-);
+        (c[0] === select1.value && c[1] === select2.value) ||
+        (c[0] === select2.value && c[1] === select1.value)
+      );
 
-if (!exists) {
-  conflicts.push([select1.value, select2.value]);
-}
+      if (!exists) {
+        conflicts.push([select1.value, select2.value]);
+      }
       renderConflicts();
     }
   };
@@ -101,17 +102,82 @@ function renderConflicts() {
 
 renderConflictSelector();
 
-// Lag lag
+//
+// 🟢 SPILL SAMMEN (NY)
+//
+function renderTogetherSelector() {
+  const controls = document.getElementById("togetherControls");
+  controls.innerHTML = "";
+
+  const select1 = document.createElement("select");
+  const select2 = document.createElement("select");
+
+  players.forEach(p => {
+    select1.innerHTML += `<option>${p.name}</option>`;
+    select2.innerHTML += `<option>${p.name}</option>`;
+  });
+
+  const btn = document.createElement("button");
+  btn.textContent = "Legg til";
+
+  btn.onclick = () => {
+    if (select1.value === select2.value) {
+      alert("Velg to forskjellige spillere");
+      return;
+    }
+
+    const exists = together.some(t =>
+      (t[0] === select1.value && t[1] === select2.value) ||
+      (t[0] === select2.value && t[1] === select1.value)
+    );
+
+    if (!exists) {
+      together.push([select1.value, select2.value]);
+    }
+
+    renderTogether();
+  };
+
+  controls.appendChild(select1);
+  controls.appendChild(select2);
+  controls.appendChild(btn);
+
+  renderTogether();
+}
+
+function renderTogether() {
+  const list = document.getElementById("togetherList");
+  list.innerHTML = "";
+
+  together.forEach((t, index) => {
+    const item = document.createElement("div");
+    item.textContent = `${t[0]} 🤝 ${t[1]}`;
+
+    item.onclick = () => {
+      together.splice(index, 1);
+      renderTogether();
+    };
+
+    list.appendChild(item);
+  });
+}
+
+renderTogetherSelector();
+
+//
+// ⚙️ LAG LAG
+//
 let lastTeams = [];
 
 document.getElementById("generate").onclick = () => {
   const numTeams = parseInt(document.getElementById("numTeams").value);
 
   const activePlayers = players.filter(p => selected.has(p.name));
-    if (activePlayers.length < numTeams) {
-  alert("For få spillere!");
-  return;
-}
+  if (activePlayers.length < numTeams) {
+    alert("For få spillere!");
+    return;
+  }
+
   let teams = Array.from({ length: numTeams }, () => []);
 
   // shuffle
@@ -129,9 +195,16 @@ document.getElementById("generate").onclick = () => {
     teams.forEach(team => {
       let score = team.reduce((sum, x) => sum + x.level, 0);
 
+      // konflikter
       conflicts.forEach(c => {
         if (team.some(x => x.name === c[0]) && p.name === c[1]) score += 100;
         if (team.some(x => x.name === c[1]) && p.name === c[0]) score += 100;
+      });
+
+      // samarbeid (NY)
+      together.forEach(t => {
+        if (team.some(x => x.name === t[0]) && p.name === t[1]) score -= 200;
+        if (team.some(x => x.name === t[1]) && p.name === t[0]) score -= 200;
       });
 
       score += Math.random();
@@ -160,11 +233,17 @@ function showModal(teams) {
   teams.forEach((team, i) => {
     const div = document.createElement("div");
 
-    div.innerHTML = `
-      <div class="teamTitle team${i + 1}">Lag ${i + 1}</div>
-      ${team.map(p => `<div>${p.name}</div>`).join("")}
-      <br><br>
-    `;
+    const totalLevel = team.reduce((sum, p) => sum + p.level, 0);
+
+div.innerHTML = `
+  <div class="teamHeader">
+    <div class="teamTitle team${i + 1}">Lag ${i + 1}</div>
+    <div class="teamLevel">⚡ ${totalLevel}</div>
+  </div>
+
+  ${team.map(p => `<div>${p.name}</div>`).join("")}
+  <br><br>
+`;
 
     content.appendChild(div);
   });
@@ -172,12 +251,6 @@ function showModal(teams) {
   modal.classList.remove("hidden");
   modal.classList.add("show");
 }
-
-document.getElementById("modal").onclick = () => {
-  const modal = document.getElementById("modal");
-  modal.classList.remove("show");
-  modal.classList.add("hidden");
-};
 
 document.getElementById("modal").onclick = () => {
   document.getElementById("modal").classList.remove("show");
@@ -195,4 +268,9 @@ document.getElementById("togglePlayers").onclick = () => {
 
 document.getElementById("toggleConflicts").onclick = () => {
   document.getElementById("conflicts").classList.toggle("hidden");
+};
+
+// NY toggle
+document.getElementById("toggleTogether").onclick = () => {
+  document.getElementById("together").classList.toggle("hidden");
 };
