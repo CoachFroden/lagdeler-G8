@@ -13,9 +13,9 @@ const players = [
   { name: "Mikael", level: 1 },
   { name: "Mikkel", level: 4 },
   { name: "Daniel", level: 1 },
-  { name: "Sigurd", level: 1 },
+  { name: "Olav", level: 3 },
   { name: "Evo", level: 2 },
-  { name: "Thomas", level: 4 },
+  { name: "Thomas", level: 5 },
   { name: "Samuel", level: 2 }
 ];
 
