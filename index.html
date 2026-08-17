@@ -1,58 +1,6 @@
-<!DOCTYPE html>
-<html lang="no">
-<head>
-  <meta charset="UTF-8">
-  <title>Lag-generator</title>
-  <link rel="stylesheet" href="styles.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <link rel="icon" type="image/png" href="icon.png">
-
-<!-- iPhone / iOS hjemskjerm -->
-<link rel="apple-touch-icon" href="icon.png">
-
-</head>
-<body>
-
-<div class="app">
-  <h1>⚽ Lag-generator</h1>
-
-<div class="controls">
-  <div class="inputGroup">
-    <label>Antall lag</label>
-    <input type="number" id="numTeams" value="2">
-  </div>
-
-  <button id="generate">Nye lag</button>
-</div>
-
-  <h2 id="togglePlayers" class="toggle">Spillere</h2>
-<div id="playerList" class="hidden"></div>
-
-  <h2 id="toggleConflicts" class="toggle">Ikke på samme lag</h2>
-<div id="conflicts" class="hidden">
-  <div id="conflictControls"></div>
-  <div id="conflictList"></div>
-</div>
-
-<h2 id="toggleTogether" class="toggle">Spill sammen</h2>
-<div id="together" class="hidden">
-  <div id="togetherControls"></div>
-  <div id="togetherList"></div>
-</div>
-
-  <div id="teams"></div>
-</div>
-
-<div id="modal" class="modal hidden">
-  <div id="modalContent"></div>
-</div>
-
-<button id="showTeams" class="hidden">Vis lag</button>
-
-<script src="app.js"></script>
-</body>
-</html>
+<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08111f"><title>Lagbygger</title><link rel="stylesheet" href="styles.css"><link rel="icon" href="icon.png"><link rel="apple-touch-icon" href="icon.png"></head><body>
+<main class="app"><header class="hero"><div class="brand">⚽</div><div><p class="eyebrow">Gutter 2018</p><h1>Lagbygger</h1><p class="subtitle">Velg spillere og lag jevne lag på sekunder.</p></div></header>
+<section class="card setup"><div class="heading"><div><p class="eyebrow">Oppsett</p><h2>Klar for kamp?</h2></div><span id="selectionSummary" class="pill"></span></div><div class="count"><label>Antall lag</label><div class="stepper"><button id="decreaseTeams" aria-label="Færre lag">−</button><output id="teamCountOutput">2</output><input id="numTeams" type="number" value="2" min="2" max="6"><button id="increaseTeams" aria-label="Flere lag">+</button></div></div><button id="generate" class="primary">Lag jevne lag <span>→</span></button><p id="message" class="message" role="status"></p></section>
+<section class="card panel open"><button class="panelToggle" aria-expanded="true" aria-controls="playerContent"><span class="panelLabel"><i>👥</i><span><strong>Spillere</strong><small id="playerStatus"></small></span></span><b>⌄</b></button><div id="playerContent" class="content"><div class="tools"><label class="search">⌕ <input id="playerSearch" type="search" placeholder="Søk etter spiller"></label><button id="toggleAll" class="link">Fjern alle</button></div><div id="playerList" class="playerList"></div></div></section>
+<section class="card panel"><button class="panelToggle" aria-expanded="false" aria-controls="rulesContent"><span class="panelLabel"><i>⚙️</i><span><strong>Lagregler</strong><small id="rulesStatus">Ingen regler lagt til</small></span></span><b>⌄</b></button><div id="rulesContent" class="content" hidden><div class="rule"><strong>Hold fra hverandre</strong><small>Disse spillerne havner ikke på samme lag.</small><div id="conflictControls" class="pair"></div><div id="conflictList" class="chips"></div></div><div class="rule"><strong>Spill sammen</strong><small>Disse spillerne plasseres på samme lag.</small><div id="togetherControls" class="pair"></div><div id="togetherList" class="chips"></div></div></div></section>
+<section id="results" class="card results hidden"><div class="heading"><div><p class="eyebrow">Resultat</p><h2>Dagens lag</h2></div><button id="regenerate" class="refresh" aria-label="Lag nye lag">↻</button></div><div id="teams" class="teams"></div></section></main><script src="app.js"></script></body></html>
