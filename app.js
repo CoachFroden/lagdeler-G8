@@ -1,4 +1,4 @@
-const players=[["David",5],["Davyd",6],["Eryk",6],["Linus",7],["Emil",7],["Tobias",7],["Max",8],["Olai",4],["Isak",7],["Lavrans",3],["Johannes",3],["Mikael",1],["Mikkel",4],["Daniel",3],["Olav",3],["Evo",2],["Thomas",5],["Samuel",4],["Leo",4]].map(([name,level],i)=>({id:`p${i}`,name,level}));
+const players=[["David",5],["Davyd",6],["Eryk",6],["Linus",7],["Emil",7],["Tobias",7],["Max",8],["Olai",4],["Isak",7],["Lavrans",3],["Johannes",3],["Mikael",1],["Mikkel",4],["Olav",3],["Evo",2],["Thomas",5],["Samuel",4],["Leo",4]].map(([name,level],i)=>({id:`p${i}`,name,level}));
 const state={selected:new Set(players.map(p=>p.id)),conflicts:[],together:[],teams:[]};
 const $=id=>document.getElementById(id);
 const label=id=>{const p=players.find(x=>x.id===id);return players.filter(x=>x.name===p.name).length>1?`${p.name} (${p.level})`:p.name};
