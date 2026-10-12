@@ -1,7 +1,7 @@
 const warmupStorageKey = "lagdeler-g8-warmup-v1";
 
 // Names survive reordering of the roster (the existing p0, p1 IDs do not).
-function pickHunters(roster, present, history, date, random = Math.random) {
+function pickHunters(roster, present, history, date, random = Math.random, avoid = []) {
   const known = new Set(roster);
   const active = new Set(present.filter(name => known.has(name)));
   const served = new Set(history.served.filter(name => known.has(name)));
@@ -11,8 +11,10 @@ function pickHunters(roster, present, history, date, random = Math.random) {
     if (roster.every(name => served.has(name))) served.clear();
     const eligible = roster.filter(name => active.has(name) && !served.has(name) && !hunters.includes(name));
     if (!eligible.length) break; // Absent players keep their turn.
-    const fresh = eligible.filter(name => !previous.has(name));
-    const pool = fresh.length ? fresh : eligible;
+    const alternatives = eligible.filter(name => !avoid.includes(name));
+    const candidates = alternatives.length ? alternatives : eligible;
+    const fresh = candidates.filter(name => !previous.has(name));
+    const pool = fresh.length ? fresh : candidates;
     const name = pool[Math.floor(random() * pool.length)];
     hunters.push(name);
     served.add(name);
@@ -20,7 +22,7 @@ function pickHunters(roster, present, history, date, random = Math.random) {
   return {
     served: [...served],
     lastHunters: hunters,
-    session: { date, hunters }
+    session: { date, hunters, beforeServed: [...history.served], beforeLastHunters: [...history.lastHunters] }
   };
 }
 
@@ -38,6 +40,22 @@ function loadWarmupHistory() {
     throw new Error("Invalid warmup history");
   }
   return history;
+}
+
+function historyBeforeDraw(history) {
+  const session = history.session;
+  if (Array.isArray(session.beforeServed) && Array.isArray(session.beforeLastHunters)) {
+    return { served: session.beforeServed, lastHunters: session.beforeLastHunters };
+  }
+  // Recover today's first draw from the previous version without clearing history.
+  const rolloverIndex = session.hunters.findIndex(name => history.served.includes(name));
+  const completedPreviousRound = rolloverIndex > 0 ? session.hunters.slice(0, rolloverIndex) : [];
+  return {
+    served: completedPreviousRound.length
+      ? players.map(p => p.name).filter(name => !completedPreviousRound.includes(name))
+      : history.served.filter(name => !session.hunters.includes(name)),
+    lastHunters: []
+  };
 }
 
 function renderWarmup(history) {
@@ -64,18 +82,17 @@ $("warmup").onclick = () => {
   try {
     const history = loadWarmupHistory();
     const date = warmupDate();
-    if (history.session?.date === date) {
-      renderWarmup(history);
-      return;
-    }
+    const redraw = history.session?.date === date;
+    const baseline = redraw ? historyBeforeDraw(history) : history;
     const present = players.filter(p => state.selected.has(p.id)).map(p => p.name);
     if (present.length < 4) {
       $("message").textContent = "Velg minst fire spillere som er til stede før du trekker jegere.";
       return;
     }
-    const next = pickHunters(players.map(p => p.name), present, history, date);
+    const next = pickHunters(players.map(p => p.name), present, baseline, date, Math.random,
+      redraw ? history.session.hunters : []);
     if (!next.session.hunters.length) {
-      $("message").textContent = "Alle fremmøtte har allerede vært jeger. Venter på: " + players.filter(p => !history.served.includes(p.name)).map(p => p.name).join(", ") + ".";
+      $("message").textContent = "Alle fremmøtte har allerede vært jeger. Venter på: " + players.filter(p => !baseline.served.includes(p.name)).map(p => p.name).join(", ") + ".";
       return;
     }
     // Do not show a successful draw unless its history was saved.
