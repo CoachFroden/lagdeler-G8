@@ -33,13 +33,47 @@ function warmupDate() {
 
 function loadWarmupHistory() {
   const saved = localStorage.getItem(warmupStorageKey);
-  if (!saved) return { served: [], lastHunters: [], session: null };
+  if (!saved) return { served: [], lastHunters: [], session: null, sessions: [] };
   const history = JSON.parse(saved);
   if (!history || !Array.isArray(history.served) || !Array.isArray(history.lastHunters) ||
       (history.session && (typeof history.session.date !== "string" || !Array.isArray(history.session.hunters)))) {
     throw new Error("Invalid warmup history");
   }
+  if (history.sessions !== undefined && (!Array.isArray(history.sessions) || history.sessions.some(s =>
+      !s || typeof s.date !== "string" || !Array.isArray(s.hunters)))) {
+    throw new Error("Invalid warmup sessions");
+  }
+  // The previous version only retained the most recent dated selection.
+  history.sessions ??= history.session ? [{ date: history.session.date, hunters: history.session.hunters }] : [];
   return history;
+}
+
+function withWarmupSessions(next, history) {
+  return { ...next, sessions: [
+    ...history.sessions.filter(s => s.date !== next.session.date),
+    { date: next.session.date, hunters: [...next.session.hunters] }
+  ] };
+}
+
+function renderWarmupHistory(history) {
+  const served = players.filter(p => history.served.includes(p.name));
+  const waiting = players.filter(p => !history.served.includes(p.name));
+  $("warmupServed").textContent = served.length ? served.map(p => p.name).join(", ") : "Ingen ennå i denne runden.";
+  $("warmupWaiting").textContent = waiting.length ? waiting.map(p => p.name).join(", ") : "Alle har vært jeger. Neste trekning starter en ny runde.";
+  $("warmupHistorySummary").textContent = `${served.length} av ${players.length} har vært jeger i denne runden`;
+  const sessions = [...history.sessions].sort((a, b) => b.date.localeCompare(a.date));
+  $("warmupHistoryEmpty").hidden = sessions.length > 0;
+  $("warmupHistoryTable").hidden = sessions.length === 0;
+  $("warmupHistoryRows").replaceChildren(...sessions.map(session => {
+    const row = document.createElement("tr");
+    const dateCell = document.createElement("td");
+    const namesCell = document.createElement("td");
+    const [year, month, day] = session.date.split("-");
+    dateCell.textContent = `${day}.${month}.${year}`;
+    namesCell.textContent = session.hunters.join(", ");
+    row.append(dateCell, namesCell);
+    return row;
+  }));
 }
 
 function historyBeforeDraw(history) {
@@ -89,16 +123,24 @@ $("warmup").onclick = () => {
       $("message").textContent = "Velg minst fire spillere som er til stede før du trekker jegere.";
       return;
     }
-    const next = pickHunters(players.map(p => p.name), present, baseline, date, Math.random,
-      redraw ? history.session.hunters : []);
+    const next = withWarmupSessions(pickHunters(players.map(p => p.name), present, baseline, date, Math.random,
+      redraw ? history.session.hunters : []), history);
     if (!next.session.hunters.length) {
       $("message").textContent = "Alle fremmøtte har allerede vært jeger. Venter på: " + players.filter(p => !baseline.served.includes(p.name)).map(p => p.name).join(", ") + ".";
       return;
     }
     // Do not show a successful draw unless its history was saved.
     localStorage.setItem(warmupStorageKey, JSON.stringify(next));
+    renderWarmupHistory(next);
     renderWarmup(next);
   } catch (error) {
     $("message").textContent = "Kunne ikke lese eller lagre jegerhistorikken. Tillat lagring i nettleseren og prøv igjen. Historikken er ikke nullstilt.";
   }
 };
+
+try {
+  renderWarmupHistory(loadWarmupHistory());
+} catch (error) {
+  $("warmupHistorySummary").textContent = "Kunne ikke lese lagret historikk";
+  $("warmupHistoryEmpty").textContent = "Historikken kunne ikke leses. Ingen lagrede data er endret.";
+}
